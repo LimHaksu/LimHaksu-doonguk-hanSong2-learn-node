@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>우아한 블록깨기</title>
+    <title>우아한 벽돌깨기</title>
     <style>
       * {
         padding: 0;
@@ -40,7 +40,7 @@
           this.y = y;
           this.status = 1;
         }
-        draw(r, c) {
+        draw(r, c, ctx) {
           const brickX = r * (Brick.width + Brick.padding) + Brick.offsetLeft;
           const brickY = c * (Brick.height + Brick.padding) + Brick.offsetTop;
           this.x = brickX;
@@ -73,7 +73,7 @@
           this.dx = dx;
           this.dy = dy;
         }
-        draw() {
+        draw(ctx) {
           ctx.beginPath();
           ctx.arc(this.x, this.y, Ball.radius, 0, Math.PI * 2);
           ctx.fillStyle = "#0095DD";
@@ -88,7 +88,7 @@
         constructor(x) {
           this.x = x;
         }
-        draw() {
+        draw(ctx) {
           ctx.beginPath();
           ctx.rect(
             this.x,
@@ -104,9 +104,30 @@
 
       const bricks = [];
       const balls = [];
-      balls.push(new Ball(canvas.width / 2 - 80, canvas.height - 30, 2, -2));
-      balls.push(new Ball(canvas.width / 2, canvas.height - 45, 2, -2));
-      balls.push(new Ball(canvas.width / 2 - 40, canvas.height - 60, 2, -2));
+      balls.push(
+        new Ball(
+          canvas.width / 2 - 20,
+          canvas.height - 25,
+          getRandom(-2, 2),
+          getRandom(-2, -0.5)
+        )
+      );
+      balls.push(
+        new Ball(
+          canvas.width / 2,
+          canvas.height - 35,
+          getRandom(-2, 2),
+          getRandom(-2, -0.5)
+        )
+      );
+      balls.push(
+        new Ball(
+          canvas.width / 2 + 20,
+          canvas.height - 45,
+          getRandom(-2, 2),
+          getRandom(-2, -0.5)
+        )
+      );
       const paddle = new Paddle((canvas.width - Paddle.width) / 2);
 
       for (let c = 0; c < brickColumnCount; c++) {
@@ -118,6 +139,10 @@
 
       document.addEventListener("keydown", keyDownHandler, false);
       document.addEventListener("keyup", keyUpHandler, false);
+      function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
       function keyDownHandler(e) {
         if (e.key == "Right" || e.key == "ArrowRight") {
           rightPressed = true;
@@ -153,7 +178,7 @@
         for (var c = 0; c < brickColumnCount; c++) {
           for (var r = 0; r < brickRowCount; r++) {
             if (bricks[c][r].status == 1) {
-              bricks[c][r].draw(r, c);
+              bricks[c][r].draw(r, c, ctx);
             }
           }
         }
@@ -168,10 +193,10 @@
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawBricks();
-        paddle.draw();
+        paddle.draw(ctx);
         drawScore();
         balls.forEach((ball) => {
-          ball.draw();
+          ball.draw(ctx);
           collisionDetection(ball);
           if (
             ball.x + ball.dx > canvas.width - Ball.radius ||
